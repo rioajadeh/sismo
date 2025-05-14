@@ -5,19 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Service</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff; /* Light blue background */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
+
         th, td {
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
         }
+
         th {
-            background-color: #f2f2f2;
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f9ff;
+        }
+
+        tr:hover {
+            background-color: #e1f0ff;
+        }
+
+        td {
+            border-bottom: 1px solid #ccc;
         }
     </style>
 </head>
@@ -52,7 +80,7 @@
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='7'>Tidak ada data riwayat service.</td></tr>";
+            echo "<tr><td colspan='7' style='text-align:center;'>Tidak ada data riwayat service.</td></tr>";
         }
 
         mysqli_close($conn);
