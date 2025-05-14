@@ -7,32 +7,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $total_pembayaran = $_POST['total_pembayaran'];
     $tanggal_pembayaran = date('Y-m-d');
 
-    // Simpan data pembayaran ke tabel pembayaran
     $query_pembayaran = "INSERT INTO pembayaran (id_pendaftaran, part_tambahan, total_pembayaran, tanggal_pembayaran) 
                          VALUES ('$id_pendaftaran', '$part_tambahan', '$total_pembayaran', '$tanggal_pembayaran')";
     mysqli_query($conn, $query_pembayaran);
 
-    // Ambil data dari tabel pendaftaran
     $query_select = "SELECT * FROM pendaftaran WHERE id_pendaftaran = '$id_pendaftaran'";
     $result_select = mysqli_query($conn, $query_select);
     $data = mysqli_fetch_assoc($result_select);
 
     if ($data) {
-        // Pindahkan data ke tabel riwayat_service
         $query_riwayat = "INSERT INTO riwayat_service (nama, alamat, nopol, type_motor, paket_service, keluhan, total_pembayaran, tanggal_service)
                           VALUES ('{$data['nama']}', '{$data['alamat']}', '{$data['nopol']}', '{$data['type_motor']}', '{$data['paket_service']}', '{$data['keluhan']}', '$total_pembayaran', NOW())";
         mysqli_query($conn, $query_riwayat);
 
-        // Hapus data dari tabel pembayaran yang terkait dengan id_pendaftaran
         $query_delete_pembayaran = "DELETE FROM pembayaran WHERE id_pendaftaran = '$id_pendaftaran'";
         mysqli_query($conn, $query_delete_pembayaran);
 
-        // Hapus data dari tabel pendaftaran
         $query_delete_pendaftaran = "DELETE FROM pendaftaran WHERE id_pendaftaran = '$id_pendaftaran'";
         mysqli_query($conn, $query_delete_pendaftaran);
     }
 
-    // Redirect ke halaman index setelah proses selesai
     header("Location: index.php");
     exit();
 } else {
@@ -45,42 +39,112 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $paket_service = $row['paket_service'];
     $harga_service = $row['harga_service'];
 ?>
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pembayaran</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eaf4fc;
+            color: #333;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    <body>
-        <h1>Input Pembayaran</h1>
-        <form method="post" action="prosesbayar.php">
-            <input type="hidden" name="id_pendaftaran" value="<?php echo $id_pendaftaran; ?>">
+        h1 {
+            color: #0a4a8f;
+            margin-bottom: 30px;
+        }
 
-            <p><strong>Nama:</strong> <?php echo $nama; ?></p>
-            <p><strong>Nopol:</strong> <?php echo $nopol; ?></p>
-            <p><strong>Paket Service:</strong> <?php echo $paket_service; ?></p>
+        form {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
 
-            <label for="part_motor">Part Motor:</label>
-            <select id="part_motor" name="part_motor" onchange="updateTotalPembayaran()">
-                <option value="0">Pilih Part Motor</option>
-                <option value="50000">Kampas Rem - 50rb</option>
-                <option value="30000">Lampu Depan - 30rb</option>
-                <option value="150000">Ban - 150rb</option>
-            </select>
+        p {
+            margin: 10px 0;
+            font-weight: 500;
+        }
 
-            <p><strong>Harga Service:</strong> <?php echo number_format($harga_service, 0, ',', '.'); ?> IDR</p>
-            <input type="hidden" id="harga_service" name="harga_service" value="<?php echo $harga_service; ?>">
-            <br>
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
 
-            <label for="total_pembayaran">Total Pembayaran:</label>
-            <input type="number" id="total_pembayaran" name="total_pembayaran" step="0.01" readonly><br><br>
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
 
-            <input type="submit" value="Bayar">
-        </form>
-    </body>
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-top: 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Input Pembayaran</h1>
+    <form method="post" action="prosesbayar.php">
+        <input type="hidden" name="id_pendaftaran" value="<?php echo $id_pendaftaran; ?>">
+
+        <p><strong>Nama:</strong> <?php echo $nama; ?></p>
+        <p><strong>Nopol:</strong> <?php echo $nopol; ?></p>
+        <p><strong>Paket Service:</strong> <?php echo $paket_service; ?></p>
+
+        <label for="part_motor">Part Motor:</label>
+        <select id="part_motor" name="part_motor" onchange="updateTotalPembayaran()">
+            <option value="0">Pilih Part Motor</option>
+            <option value="50000">Kampas Rem - 50rb</option>
+            <option value="30000">Lampu Depan - 30rb</option>
+            <option value="150000">Ban - 150rb</option>
+        </select>
+
+        <label for="harga_service">Harga Service:</label>
+        <input type="text" id="harga_service_display" value="<?php echo number_format($harga_service, 0, ',', '.'); ?> IDR" readonly>
+        <input type="hidden" id="harga_service" name="harga_service" value="<?php echo $harga_service; ?>">
+
+        <label for="total_pembayaran">Total Pembayaran:</label>
+        <input type="number" id="total_pembayaran" name="total_pembayaran" step="0.01" readonly>
+
+        <input type="submit" value="Bayar">
+    </form>
+
     <script>
         function updateTotalPembayaran() {
             var partMotor = parseFloat(document.getElementById('part_motor').value) || 0;
@@ -89,15 +153,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             document.getElementById('total_pembayaran').value = totalPembayaran.toFixed(2);
         }
 
-        // Tambahkan event listener setelah halaman selesai dimuat
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('part_motor').addEventListener('change', updateTotalPembayaran);
-            updateTotalPembayaran(); // Hitung ulang saat halaman pertama kali dimuat
+            updateTotalPembayaran();
         });
     </script>
+</body>
 
-
-    </html>
+</html>
 <?php
 }
 mysqli_close($conn);
+?>
